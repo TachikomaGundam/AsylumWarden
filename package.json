@@ -1,5 +1,5 @@
 {
-  "name": "@tachikomagundam/asylumwarden",
+  "name": "asylumwarden",
   "version": "0.0.0",
   "private": true,
   "description": "Local, file-first control plane for multi-seat AI work: registry, DAG, leases, receipts, ledger.",
@@ -15,9 +15,6 @@
     "README.md",
     "LICENSE"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TachikomaGundam/AsylumWarden.git"

@@ -3,10 +3,10 @@
 ## Names
 
 - GitHub repository: `TachikomaGundam/AsylumWarden` (user account, not an org).
-- npm package: `@tachikomagundam/asylumwarden` (lowercase scope and name).
+- npm package: `asylumwarden` (unscoped, all lowercase).
 
-Case matters. Do not publish `AsylumWarden`, `asylum-warden`, or
-`@TachikomaGundam/asylumwarden`.
+Case matters. Do not publish `AsylumWarden`, `asylum-warden`, or any scoped
+variant.
 
 ## npm authentication
 
@@ -17,10 +17,10 @@ authenticate before the package can be created or published:
 cd ~/workspace/harness/AsylumWarden && npm login
 ```
 
-Publishing uses the scoped public package:
+Publishing uses the unscoped public package:
 
 ```sh
-cd ~/workspace/harness/AsylumWarden && npm publish --access public
+cd ~/workspace/harness/AsylumWarden && npm publish
 ```
 
 The package stays `private: true` and version `0.0.0` until the first reviewed

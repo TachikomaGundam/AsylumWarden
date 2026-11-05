@@ -7,7 +7,7 @@ keeps the plan, leases, receipts, and ledger on disk. It does not run a daemon,
 require a database, or replace the host's sandbox.
 
 - GitHub: <https://github.com/TachikomaGundam/AsylumWarden>
-- npm: `@tachikomagundam/asylumwarden` (not published yet)
+- npm: `asylumwarden` (not published yet)
 - License: MIT
 
 ## What it is
