@@ -270,7 +270,9 @@ async function validateArtifacts(ctx, receipt, cellRow) {
     }
     // policy.artifactOk throws FORBIDDEN-SURFACE (forbidden hit first, per
     // pinned artifactOk semantics) or PATH-ESCAPE (outside allowed_roots).
-    ctx.policy.artifactOk(real, cellRow);
+    // Real policy impls are async (realpath inside); await so the
+    // rejection propagates instead of floating as a rejected promise.
+    await ctx.policy.artifactOk(real, cellRow);
     const actual = await sha256File(real);
     if (actual !== artifact.sha256) {
       fail("RECEIPT-HASH", `artifact hash mismatch: ${artifactPath}`, [
@@ -302,7 +304,7 @@ async function validateReads(ctx, receipt, cellRow) {
         violation(readPath, "read-swap", real),
       ]);
     }
-    if (ctx.policy.readOk(real, cellRow, lineName) !== true) {
+    if ((await ctx.policy.readOk(real, cellRow, lineName)) !== true) {
       fail("READ-OUTSIDE", `read path outside allowed union: ${real}`, [
         violation(readPath, "read-outside", real),
       ]);

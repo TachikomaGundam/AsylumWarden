@@ -58,9 +58,9 @@ tested:
 |---|---|
 | Host import gate | `src/` must not import host SDKs (`@opencode-ai`, Codex/Claude packages, adapter paths). Build gate fails the build on a hit. |
 | Post-write verification | realpath plus sha256 taken after every artifact write; symlink swaps must fail. |
-| Schema validation | Config, manifest, and receipt inputs run through JSON Schemas. Parsed objects use null prototypes. Size caps apply. Malformed input fails closed. |
+| Schema validation | Config, manifest, and receipt inputs run through JSON Schemas. Parsed objects use null prototypes (arrays keep array semantics). Size caps apply. Malformed input fails closed. |
 | Ledger integrity | Single-writer lock or atomic append; EOF-only append; torn-write recovery is tested. |
-| Lease adversarial tests | Concurrent claim, expiry takeover, live-process hold, dead-pid recovery, `max_hold` steal. |
+| Lease adversarial tests | Concurrent claim, expiry takeover, live-process hold, `max_hold` steal. Takeover is time-gated; the lease pid is forensic (short-lived CLI claimants exit by design). |
 | Forbidden-surface rejection tests | Missing `forbidden_surfaces` declaration fails closed; a cell `allowed_roots` inside a forbidden surface is rejected; cross-line writable roots are rejected; `forbidden_absolute` hits (including `*.consumed`) are rejected at `done`. |
 | Unknown-kind rejection | An unregistered `kind` yields `UNKNOWN-KIND`, never a silent default. |
 | Shadow receipt gate | `verify` rejects a `mode:"shadow"` receipt as a substitute for `state/plan-approvals/**` evidence. |
