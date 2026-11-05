@@ -1,14 +1,16 @@
 # AsylumWarden
 
-**Status: architecture phase. No runtime code. The npm package `asylumwarden@0.0.0`
-is a name reservation; the first functional release will be `0.1.0`.**
+**Status: core + CLI implemented (milestones M1–M2), adapter layer in
+progress. The npm package `asylumwarden@0.0.0` is a name reservation; the
+first functional release will be `0.1.0`.**
 
 AsylumWarden is a local, file-first control plane for multi-seat AI work. It
 keeps the plan, leases, receipts, and ledger on disk. It does not run a daemon,
 require a database, or replace the host's sandbox.
 
 - GitHub: <https://github.com/TachikomaGundam/AsylumWarden>
-- npm: `asylumwarden` (0.0.0 name reservation; no runtime code yet)
+- npm: `asylumwarden` (0.0.0 name reservation; functional release `0.1.0`
+  follows the release gate in [`docs/RELEASING.md`](docs/RELEASING.md))
 - License: MIT
 
 ## What it is
@@ -30,8 +32,11 @@ require a database, or replace the host's sandbox.
 ## Design
 
 The approved architecture is in
-[`docs/architecture-handoff.md`](docs/architecture-handoff.md). The PCB pilot
-boundary is in [`docs/PILOT-PCB.md`](docs/PILOT-PCB.md). Release rules are in
+[`docs/architecture-handoff.md`](docs/architecture-handoff.md). Wire formats
+and error codes have a single source: [`docs/CONTRACT.md`](docs/CONTRACT.md)
+with machine-readable schemas in `schemas/`. Security limits are stated
+plainly in [`docs/SECURITY.md`](docs/SECURITY.md). The PCB pilot boundary is
+in [`docs/PILOT-PCB.md`](docs/PILOT-PCB.md). Release rules are in
 [`docs/RELEASING.md`](docs/RELEASING.md).
 
 ## Boundary with Abathur

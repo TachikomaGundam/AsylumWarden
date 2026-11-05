@@ -3,8 +3,9 @@
 Local, file-first control plane for multi-seat AI work: registry, DAG planner,
 leases, receipts, hash-chained ledger.
 
-**Status: architecture phase. No runtime code, no tests, no CI, no lockfile,
-no package scripts yet.** `.codegraph/` is a symlink to an external index.
+**Status: core + CLI implemented (M1–M2), opencode adapter as M3 layer.
+Zero runtime dependencies. `.codegraph/` is a symlink to an external index
+(ignored, never committed).**
 
 ## Read first
 
@@ -57,8 +58,13 @@ Target layout: handoff §11.
 ## Toolchain
 
 - Node `>=22.22.1` (engines), ESM (`"type": "module"`).
-- No lint/test/format tooling exists yet. When introducing it, pick explicitly
-  and record commands here; prefer `node --test` per the zero-dep promise.
+- Test runner: `npm test` (`node --test 'test/**/*.test.mjs'`) — zero-dep
+  promise, no third-party runner.
+- Build gate: `npm run gate:imports` (`node tools/import-gate.mjs`) —
+  enforces `src/`+`bin/` import only `node:` stdlib and relative paths, and
+  that `package.json` runtime dependency fields stay empty.
+- No lint/format tooling yet. If introduced, pick explicitly and record
+  commands here.
 
 ## Release & naming
 
