@@ -266,8 +266,8 @@ Lease file `waves/<wave>/leases/<cell>/owner.json`:
 ```
 
 - `claim`: succeeds when the cell is `pending` and every dep is `done`. The
-  first claim sets `epoch = 1`. Reclaim of an expired or dead-holder lease
-  increments `epoch`.
+  first claim sets `epoch = 1`. Reclaim of an expired lease increments
+  `epoch`.
 - Default `ttl_seconds` 1800 (allowed range 30..86400).
 - `max_hold`: default `max(2*ttl, 30m)` from `acquired_at`; recorded as
   `max_hold_until`.
@@ -279,9 +279,11 @@ Lease file `waves/<wave>/leases/<cell>/owner.json`:
   `{prior: {actor, epoch, max_hold_until}, evidence}`. Before
   `max_hold_until`: `STEAL-DENIED` (exit 1). A claim (without `--steal`) on
   a live lease: `LEASE-HELD` (exit 1).
-- Dead-holder reclaim: `claim` succeeds early (before expiry) when the
-  lease's `pid` is not alive on this `host`; the takeover is appended as
-  `claim` with `payload.reclaim = "dead-pid"`.
+- `pid`/`host` in the lease are forensic records only. Takeover is
+  time-gated, never pid-gated: CLI claimants are short-lived processes that
+  exit right after `claim`, so pid-liveness would void every lease. A crashed
+  holder therefore blocks its cell only until `expires_at` (reclaim) or
+  `max_hold_until` (steal), which is the handoff's blocking bound.
 - `release`: same actor + epoch; removes the lease, cell returns to
   `pending`, epoch number is never reused.
 - `requeue`: administrative reset of a `failed` cell to `pending`; no lease

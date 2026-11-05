@@ -75,7 +75,7 @@ forbidden (AGENTS.md).
 |---|---|
 | double claim live lease | LEASE-HELD exit 1 |
 | expired lease takeover | new epoch, event recorded |
-| dead pid on same host | reclaimed before expiry, reclaim evidence |
+| dead pid (CLI claimant exited) | lease honoured until expires_at — takeover is time-gated, pid is forensic |
 | live pid, different host unreachable for probe | NOT early-reclaimed (time-gated only) |
 | steal before max_hold_until | STEAL-DENIED |
 | steal after max_hold_until | ok + steal event with prior owner evidence |

@@ -144,8 +144,8 @@ cell via read-modify-atomic-write only AFTER lease file changes):
 - `renew(ctx, {wave, cell, actor, epoch, ttlSeconds=1800})` → owner
 - `release(ctx, {wave, cell, actor, epoch})` → `{released:true}`
 - `requeue(ctx, {wave, cell})` → cell
-Semantics: CONTRACT §6 (epoch, max_hold, steal window, dead-pid reclaim —
-only when `owner.host === os.hostname()`). TTL range 30..86400 (`USAGE`).
+Semantics: CONTRACT §6 (epoch, max_hold, steal window; takeover is
+time-gated only, pid is forensic). TTL range 30..86400 (`USAGE`).
 Missing wave → `WAVE-MISSING`; missing cell → `CELL-MISSING` (before lease
 errors). Claim requires all deps `done` else business reject
 `CELL-STATE` (payload lists blocked deps in violations). Role mtime check

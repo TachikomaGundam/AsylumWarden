@@ -12,7 +12,7 @@
     "asylumwarden": "bin/asylumwarden.mjs"
   },
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test 'test/**/*.test.mjs'",
     "gate:imports": "node tools/import-gate.mjs"
   },
   "files": [

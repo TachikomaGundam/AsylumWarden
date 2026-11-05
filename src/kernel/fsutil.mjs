@@ -74,9 +74,10 @@ export async function readJsonCapped(filePath, cap = CAP_CONFIG, codeOnBad = "ST
 
 function deepNullProto(node) {
   if (node === null || typeof node !== "object") return node;
+  // Arrays keep Array.prototype: JSON arrays cannot carry __proto__ via
+  // index keys, and consumers legitimately call .map/.filter/.every.
   if (Array.isArray(node)) {
     for (let i = 0; i < node.length; i += 1) node[i] = deepNullProto(node[i]);
-    Object.setPrototypeOf(node, null);
     return node;
   }
   for (const key of Object.getOwnPropertyNames(node)) {
