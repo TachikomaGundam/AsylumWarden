@@ -327,7 +327,10 @@ state is unchanged**:
    read_roots ∪ line.read_roots` (`READ-OUTSIDE`, exit 1).
 
 Receipts prove *path + content-at-time*. They never prove content benignity,
-and (shadow mode) never prove approval.
+and (shadow mode) never prove approval. A successful `done`/`fail` consumes
+the lease: `owner.json` is removed, keeping the invariant that a cell not in
+`claimed` state carries no lease (otherwise `requeue` after `fail` would
+deadlock).
 
 ## 8. CLI
 

@@ -430,6 +430,9 @@ export async function doneWithReceipt(ctx, { wave, cell, actor, epoch, receiptPa
   const nowIsoStr = nowIsoOf(ctx);
   const finalState = parsed.status === "done" ? "done" : "failed";
   await writeCell(ctx.sl, wave, cell, { ...cellRow, state: finalState, updated_at: nowIsoStr });
+  // Finishing consumes the lease (CONTRACT §6/§7): a cell that is not
+  // claimed must not carry a lease, or requeue-after-fail would deadlock.
+  await fs.rm(ctx.sl.ownerFile(wave, cell), { force: true });
   await ctx.ledger.append(finalState === "done" ? "done" : "fail", {
     wave,
     cell,
@@ -487,6 +490,8 @@ export async function failCell(ctx, { wave, cell, actor, epoch, reason }) {
 
   const nowIsoStr = nowIsoOf(ctx);
   await writeCell(ctx.sl, wave, cell, { ...cellRow, state: "failed", updated_at: nowIsoStr });
+  // Finishing consumes the lease (see doneWithReceipt).
+  await fs.rm(ctx.sl.ownerFile(wave, cell), { force: true });
   await ctx.ledger.append("fail", {
     wave,
     cell,
