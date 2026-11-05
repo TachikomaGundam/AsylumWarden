@@ -20,7 +20,8 @@ import path from "node:path";
 import { fail, violation } from "../kernel/errors.mjs";
 import { sha256File, sha256Hex } from "../kernel/canon.mjs";
 import { CAP_CONFIG, fileExists, nowIso, readJsonCapped } from "../kernel/fsutil.mjs";
-import { readCell, writeCell, HEX64_RE } from "../kernel/state.mjs";
+import { readCell, writeCell, HEX64_RE, SAFE_ID_RE } from "../kernel/state.mjs";
+import { withExclusiveLock } from "../kernel/lock.mjs";
 import { validateSchema } from "../kernel/schemalite.mjs";
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/;
@@ -354,7 +355,7 @@ function checkShadowKeyPurity(ctx, receipt) {
  * doneWithReceipt(ctx, {wave, cell, actor, epoch, receiptPath}) → {file, sha256}
  * CONTRACT §7 exact order; zero mutation on any rejection.
  */
-export async function doneWithReceipt(ctx, { wave, cell, actor, epoch, receiptPath }) {
+async function doneLocked(ctx, { wave, cell, actor, epoch, receiptPath }) {
   if (typeof actor !== "string" || actor.length === 0) fail("USAGE", "done requires a non-empty actor");
   const cellRow = await loadCellOrFail(ctx, wave, cell);
 
@@ -447,7 +448,7 @@ export async function doneWithReceipt(ctx, { wave, cell, actor, epoch, receiptPa
  * Synthesizes a failed receipt and lands the cell failed. Same lease
  * identity law as done; input validated before any mutation.
  */
-export async function failCell(ctx, { wave, cell, actor, epoch, reason }) {
+async function failCellLocked(ctx, { wave, cell, actor, epoch, reason }) {
   if (typeof actor !== "string" || actor.length === 0) fail("USAGE", "fail requires a non-empty actor");
   if (typeof reason !== "string" || reason.length === 0) {
     fail("USAGE", "fail requires a non-empty --reason", [violation("reason", "usage", "empty")]);
@@ -499,4 +500,56 @@ export async function failCell(ctx, { wave, cell, actor, epoch, reason }) {
     payload: { reason, receipt_sha256: receiptSha, status: "failed" },
   });
   return { file: stored, sha256: receiptSha };
+}
+
+// Validation + commit run inside the per-cell lease lock (same critical
+// section as claim/renew/release): lease identity checks, state flip, and
+// owner removal must be atomic against a concurrent steal/reclaim, and a
+// validation pass must not be based on a lease that vanished mid-check.
+
+// Wave/cell existence is proven BEFORE locking: acquiring the lock runs
+// ensureDir, and letting it mint directories for unknown waves would flip
+// WAVE-MISSING into CELL-MISSING inside claimLocked's checks.
+async function requireWaveCell(ctx, wave, cell) {
+  for (const [name, value] of [["wave", wave], ["cell", cell]]) {
+    if (typeof value !== "string" || !SAFE_ID_RE.test(value)) {
+      fail("USAGE", `${name} must be a safe id: ${String(value)}`, [
+        violation(name, "safe-id", String(value)),
+      ]);
+    }
+  }
+  const fs = await import("node:fs/promises");
+  try {
+    await fs.stat(ctx.sl.metaFile(wave));
+  } catch {
+    // plan always writes meta.json; the cells-dir alternative keeps
+    // hand-seeded wave fixtures working. Absent both = no wave.
+    try {
+      await fs.stat(ctx.sl.cellsDir(wave));
+    } catch {
+      fail("WAVE-MISSING", `no such wave: ${wave}`, [violation("wave", "wave-missing", wave)]);
+    }
+  }
+  try {
+    await fs.stat(ctx.sl.cellFile(wave, cell));
+  } catch {
+    fail("CELL-MISSING", `cell not found: ${wave}/${cell}`, [violation("cell", "cell-missing", `${wave}/${cell}`)]);
+  }
+}
+
+async function withCellLock(ctx, wave, cell, fn) {
+  await requireWaveCell(ctx, wave, cell);
+  return withExclusiveLock(
+    ctx.sl.leaseLock(wave, cell),
+    { busyCode: "LEASE-BUSY", busyMessage: `lease mutation busy for ${wave}/${cell}` },
+    fn,
+  );
+}
+
+export async function doneWithReceipt(ctx, args) {
+  return withCellLock(ctx, args.wave, args.cell, () => doneLocked(ctx, args));
+}
+
+export async function failCell(ctx, args) {
+  return withCellLock(ctx, args.wave, args.cell, () => failCellLocked(ctx, args));
 }

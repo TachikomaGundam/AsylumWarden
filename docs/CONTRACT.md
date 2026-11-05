@@ -255,6 +255,13 @@ core are a defect; readers reject unknown types with `LEDGER-BROKEN`.
 
 ## 6. Leases
 
+Every lease mutation (`claim`/`renew`/`release`/`requeue`/`done`/`fail`) runs
+inside a per-cell exclusive lock (`waves/<wave>/leases/<cell>/claim.lock`,
+same create/stale/busy posture as §5.3): the check-to-write sequence must be
+atomic across processes, or two claims both pass the liveness check and race
+into `owner.json`. Contention past the 5 s wait deadline fails as
+`LEASE-BUSY` (exit 1, retryable).
+
 Lease file `waves/<wave>/leases/<cell>/owner.json`:
 
 ```json
@@ -391,7 +398,7 @@ stable fields on top (e.g. `plan` adds `cells[]`, `ready` adds `ready[]`,
 
 Exit 1 (usage / business): `USAGE`, `UNKNOWN-COMMAND` (bad argv, before any
 state read), `USAGE` subsumes malformed flags.
-`LEASE-HELD`, `LEASE-EXPIRED`, `LEASE-MAX-HOLD`, `STEAL-DENIED`,
+`LEASE-HELD`, `LEASE-EXPIRED`, `LEASE-MAX-HOLD`, `LEASE-BUSY`, `STEAL-DENIED`,
 `EPOCH-MISMATCH`, `ACTOR-MISMATCH`, `CELL-STATE`, `RESTART-REQUIRED`,
 `RECEIPT-COMMANDS`, `RECEIPT-HASH`, `READ-OUTSIDE`, `WAVE-EXISTS`,
 `WAVE-MISSING`, `CELL-MISSING`.

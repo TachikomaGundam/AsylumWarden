@@ -26,6 +26,7 @@ export function layout(stateHome) {
     cellFile: (wave, id) => path.join(waves, wave, "cells", `${id}.json`),
     leasesDir: (wave) => path.join(waves, wave, "leases"),
     leaseDir: (wave, id) => path.join(waves, wave, "leases", id),
+    leaseLock: (wave, id) => path.join(waves, wave, "leases", id, "claim.lock"),
     ownerFile: (wave, id) => path.join(waves, wave, "leases", id, "owner.json"),
     leaseHistory: (wave, id) => path.join(waves, wave, "leases", id, "history.jsonl"),
     receiptFile: (wave, id) => path.join(receipts, wave, `${id}.json`),

@@ -20,6 +20,7 @@ import path from "node:path";
 
 import { fail, violation } from "../kernel/errors.mjs";
 import { ensureDir, fileExists, nowIso, readJsonCapped, atomicWriteJson } from "../kernel/fsutil.mjs";
+import { withExclusiveLock } from "../kernel/lock.mjs";
 import { readCell, writeCell, removeStateFile, SAFE_ID_RE } from "../kernel/state.mjs";
 
 const TTL_MIN = 30;
@@ -238,7 +239,7 @@ async function checkRoleSnapshot(ctx, cellRow) {
  * claim(ctx, {wave, cell, actor, ttlSeconds=1800, steal=false}) → owner
  * CONTRACT §6 semantics; see module header for ordering law.
  */
-export async function claim(ctx, { wave, cell, actor, ttlSeconds = 1800, steal = false }) {
+async function claimLocked(ctx, { wave, cell, actor, ttlSeconds = 1800, steal = false }) {
   // Pure input checks first — no I/O, no mutation.
   validateTtl(ttlSeconds);
   if (typeof actor !== "string" || actor.length === 0) {
@@ -372,7 +373,7 @@ export async function claim(ctx, { wave, cell, actor, ttlSeconds = 1800, steal =
  * max_hold_until are fixed forever (pinned): once now > max_hold_until the
  * lease can never be renewed again in this epoch.
  */
-export async function renew(ctx, { wave, cell, actor, epoch, ttlSeconds = 1800 }) {
+async function renewLocked(ctx, { wave, cell, actor, epoch, ttlSeconds = 1800 }) {
   validateTtl(ttlSeconds);
   if (typeof actor !== "string" || actor.length === 0) fail("USAGE", "renew requires a non-empty actor");
   const cellRow = await loadCellOrFail(ctx, wave, cell);
@@ -436,7 +437,7 @@ export async function renew(ctx, { wave, cell, actor, epoch, ttlSeconds = 1800 }
  * a live lease can be cleared with release (failed → pending), making the
  * requeue "no lease may exist" guard reachable without state surgery.
  */
-export async function release(ctx, { wave, cell, actor, epoch }) {
+async function releaseLocked(ctx, { wave, cell, actor, epoch }) {
   if (typeof actor !== "string" || actor.length === 0) fail("USAGE", "release requires a non-empty actor");
   const cellRow = await loadCellOrFail(ctx, wave, cell);
   const owner = await loadLeaseOrNull(ctx, wave, cell);
@@ -474,7 +475,7 @@ export async function release(ctx, { wave, cell, actor, epoch }) {
  * Administrative reset: failed → pending only. No lease may exist
  * (CELL-STATE otherwise). Epoch is preserved; the next claim takes epoch+1.
  */
-export async function requeue(ctx, { wave, cell }) {
+async function requeueLocked(ctx, { wave, cell }) {
   const cellRow = await loadCellOrFail(ctx, wave, cell);
   if (cellRow.state !== "failed") {
     fail("CELL-STATE", `requeue requires state failed, found ${String(cellRow.state)}`, [
@@ -490,4 +491,61 @@ export async function requeue(ctx, { wave, cell }) {
   await writeCell(ctx.sl, wave, cell, { ...cellRow, state: "pending", updated_at: nowIsoStr });
   await ctx.ledger.append("requeue", { wave, cell, actor: null, payload: { epoch: cellRow.epoch } });
   return { ...cellRow, state: "pending", updated_at: nowIsoStr };
+}
+
+// Per-cell serialization (E2E race defect class, T8 row 1): the lease
+// check-to-write sequence must be atomic across processes, or two claims
+// both pass the liveness check and race into owner.json (multi-winner +
+// atomic-write read-back false alarms). Lock is held for the milliseconds
+// of file work; contention past the wait deadline fails closed as
+// LEASE-BUSY (retryable, exit 1).
+
+// Wave/cell existence is proven BEFORE locking: acquiring the lock runs
+// ensureDir, and letting it mint directories for unknown waves would flip
+// WAVE-MISSING into CELL-MISSING inside claimLocked's checks.
+async function requireWaveCell(ctx, wave, cell) {
+  validateSafeId("wave", wave);
+  validateSafeId("cell", cell);
+  const fs = await import("node:fs/promises");
+  try {
+    await fs.stat(ctx.sl.metaFile(wave));
+  } catch {
+    // plan always writes meta.json; the cells-dir alternative keeps
+    // hand-seeded wave fixtures working. Absent both = no wave.
+    try {
+      await fs.stat(ctx.sl.cellsDir(wave));
+    } catch {
+      fail("WAVE-MISSING", `no such wave: ${wave}`, [violation("wave", "wave-missing", wave)]);
+    }
+  }
+  try {
+    await fs.stat(ctx.sl.cellFile(wave, cell));
+  } catch {
+    fail("CELL-MISSING", `cell not found: ${wave}/${cell}`, [violation("cell", "cell-missing", `${wave}/${cell}`)]);
+  }
+}
+
+async function withCellLock(ctx, wave, cell, fn) {
+  await requireWaveCell(ctx, wave, cell);
+  return withExclusiveLock(
+    ctx.sl.leaseLock(wave, cell),
+    { busyCode: "LEASE-BUSY", busyMessage: `lease mutation busy for ${wave}/${cell}` },
+    fn,
+  );
+}
+
+export async function claim(ctx, args) {
+  return withCellLock(ctx, args.wave, args.cell, () => claimLocked(ctx, args));
+}
+
+export async function renew(ctx, args) {
+  return withCellLock(ctx, args.wave, args.cell, () => renewLocked(ctx, args));
+}
+
+export async function release(ctx, args) {
+  return withCellLock(ctx, args.wave, args.cell, () => releaseLocked(ctx, args));
+}
+
+export async function requeue(ctx, args) {
+  return withCellLock(ctx, args.wave, args.cell, () => requeueLocked(ctx, args));
 }
