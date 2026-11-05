@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asylumwarden/manifest.schema.json",
+  "title": "AsylumWarden wave manifest (wave.json)",
+  "type": "object",
+  "properties": {
+    "version": { "const": 1 },
+    "wave": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+    "cells": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+          "kind": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,31}$" },
+          "line": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+          "cwd": { "type": "string", "pattern": "^/" },
+          "allowed_roots": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": { "type": "string", "pattern": "^/" }
+          },
+          "read_roots": {
+            "type": "array",
+            "maxItems": 64,
+            "items": { "type": "string", "pattern": "^/" }
+          },
+          "deps": {
+            "type": "array",
+            "maxItems": 1024,
+            "items": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" }
+          },
+          "role": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "role_file": { "type": "string", "pattern": "^/" },
+          "session_started_at": { "type": "string", "format": "date-time" },
+          "brief": { "type": "string", "maxLength": 4096 },
+          "acceptance": { "type": "string", "maxLength": 4096 }
+        },
+        "required": ["id", "kind", "line", "cwd", "allowed_roots", "deps"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["version", "wave", "cells"],
+  "additionalProperties": false
+}

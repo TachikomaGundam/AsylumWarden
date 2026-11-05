@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asylumwarden/receipt.schema.json",
+  "title": "AsylumWarden receipt",
+  "type": "object",
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "description": "normal receipt: shadow keys forbidden",
+          "properties": {
+            "version": { "const": 1 },
+            "cell": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+            "actor": { "type": "string", "minLength": 1, "maxLength": 256 },
+            "epoch": { "type": "integer", "minimum": 1 },
+            "status": { "enum": ["done", "failed"] },
+            "summary": { "type": "string", "minLength": 1, "maxLength": 4096 },
+            "commands": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "cmd": { "type": "string", "minLength": 1, "maxLength": 4096 },
+                  "exit": { "type": "integer", "minimum": 0 }
+                },
+                "required": ["cmd", "exit"],
+                "additionalProperties": false
+              }
+            },
+            "artifacts": {
+              "type": "array",
+              "maxItems": 1024,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": { "type": "string", "pattern": "^/" },
+                  "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+                },
+                "required": ["path", "sha256"],
+                "additionalProperties": false
+              }
+            },
+            "reads": {
+              "type": "array",
+              "maxItems": 4096,
+              "items": { "type": "string", "pattern": "^/" }
+            }
+          },
+          "required": ["version", "cell", "actor", "epoch", "status", "summary"],
+          "additionalProperties": false
+        },
+        {
+          "description": "shadow receipt: mode and shadow_of required; wave id carries the shadow- prefix",
+          "properties": {
+            "version": { "const": 1 },
+            "cell": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+            "actor": { "type": "string", "minLength": 1, "maxLength": 256 },
+            "epoch": { "type": "integer", "minimum": 1 },
+            "status": { "enum": ["done", "failed"] },
+            "summary": { "type": "string", "minLength": 1, "maxLength": 4096 },
+            "mode": { "const": "shadow" },
+            "shadow_of": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "commands": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "cmd": { "type": "string", "minLength": 1, "maxLength": 4096 },
+                  "exit": { "type": "integer", "minimum": 0 }
+                },
+                "required": ["cmd", "exit"],
+                "additionalProperties": false
+              }
+            },
+            "artifacts": {
+              "type": "array",
+              "maxItems": 1024,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": { "type": "string", "pattern": "^/" },
+                  "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+                },
+                "required": ["path", "sha256"],
+                "additionalProperties": false
+              }
+            },
+            "reads": {
+              "type": "array",
+              "maxItems": 4096,
+              "items": { "type": "string", "pattern": "^/" }
+            }
+          },
+          "required": ["version", "cell", "actor", "epoch", "status", "summary", "mode", "shadow_of"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  ]
+}

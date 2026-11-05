@@ -8,6 +8,13 @@
   "engines": {
     "node": ">=22.22.1"
   },
+  "bin": {
+    "asylumwarden": "bin/asylumwarden.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/",
+    "gate:imports": "node tools/import-gate.mjs"
+  },
   "files": [
     "src",
     "schemas",

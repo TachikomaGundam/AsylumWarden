@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asylumwarden/ledger.schema.json",
+  "title": "AsylumWarden ledger entry (one per JSONL line)",
+  "type": "object",
+  "properties": {
+    "seq": { "type": "integer", "minimum": 1 },
+    "ts": { "type": "string", "format": "date-time" },
+    "type": {
+      "enum": ["genesis", "plan", "claim", "renew", "release", "requeue", "steal", "done", "fail", "anchor"]
+    },
+    "wave": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+    "cell": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+    "actor": { "type": ["string", "null"], "minLength": 1, "maxLength": 256 },
+    "payload": { "type": "object" },
+    "prev": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "required": ["seq", "ts", "type", "wave", "cell", "actor", "payload", "prev", "hash"],
+  "additionalProperties": false
+}

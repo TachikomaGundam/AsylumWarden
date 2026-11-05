@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asylumwarden/config.schema.json",
+  "title": "AsylumWarden project config (asylumwarden.json)",
+  "type": "object",
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "description": "normal mode: shadow keys forbidden",
+          "properties": {
+            "version": { "const": 1 },
+            "registry": { "type": "string", "pattern": "^~?/" },
+            "registry_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "self": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+            "state_home": { "type": "string", "pattern": "^~?/" },
+            "mode": { "const": "normal" },
+            "kinds": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": { "description": { "type": "string", "minLength": 1, "maxLength": 4096 } },
+                "required": ["description"],
+                "additionalProperties": false
+              }
+            },
+            "anchor": {
+              "anyOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": { "enum": ["command", "remote", "human-checkpoint", "file"] },
+                    "target": { "type": "string", "minLength": 1, "maxLength": 4096 },
+                    "signer": { "type": "string", "minLength": 1, "maxLength": 256 }
+                  },
+                  "required": ["type", "target"],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": ["version", "registry", "registry_sha256", "self", "state_home", "mode"],
+          "additionalProperties": false
+        },
+        {
+          "description": "shadow mode: shadow_of and shadow_home required",
+          "properties": {
+            "version": { "const": 1 },
+            "registry": { "type": "string", "pattern": "^~?/" },
+            "registry_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "self": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+            "state_home": { "type": "string", "pattern": "^~?/" },
+            "mode": { "const": "shadow" },
+            "shadow_of": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "shadow_home": { "type": "string", "pattern": "^/" },
+            "kinds": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": { "description": { "type": "string", "minLength": 1, "maxLength": 4096 } },
+                "required": ["description"],
+                "additionalProperties": false
+              }
+            },
+            "anchor": {
+              "anyOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": { "enum": ["command", "remote", "human-checkpoint", "file"] },
+                    "target": { "type": "string", "minLength": 1, "maxLength": 4096 },
+                    "signer": { "type": "string", "minLength": 1, "maxLength": 256 }
+                  },
+                  "required": ["type", "target"],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": ["version", "registry", "registry_sha256", "self", "state_home", "mode", "shadow_of", "shadow_home"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  ]
+}

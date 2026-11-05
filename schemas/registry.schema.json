@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asylumwarden/registry.schema.json",
+  "title": "AsylumWarden machine registry (registry.json / shadow-registry.json)",
+  "type": "object",
+  "properties": {
+    "version": { "const": 1 },
+    "lines": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "roots": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": { "type": "string", "pattern": "^/" }
+          },
+          "forbidden_surfaces": {
+            "type": "array",
+            "maxItems": 256,
+            "items": { "type": "string", "pattern": "^[^/]" }
+          },
+          "forbidden_absolute": {
+            "type": "array",
+            "maxItems": 256,
+            "items": { "type": "string", "pattern": "^/" }
+          },
+          "read_roots": {
+            "type": "array",
+            "maxItems": 64,
+            "items": { "type": "string", "pattern": "^/" }
+          }
+        },
+        "required": ["roots", "forbidden_surfaces"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["version", "lines"],
+  "additionalProperties": false
+}
