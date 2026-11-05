@@ -1,7 +1,7 @@
 {
   "name": "asylumwarden",
   "version": "0.0.0",
-  "private": false,
+  "private": true,
   "description": "Local, file-first control plane for multi-seat AI work: registry, DAG, leases, receipts, ledger.",
   "type": "module",
   "license": "MIT",

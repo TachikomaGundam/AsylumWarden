@@ -64,7 +64,8 @@ Target layout: handoff §11.
 
 - GitHub: `TachikomaGundam/AsylumWarden` (user account, exact case).
   npm: `asylumwarden` (all lowercase, unscoped). Never a case variant.
-- `0.0.0` is a name-reservation publish (pending npm OTP); `private: false` is
-  set only for that reservation. The first functional release is `0.1.0`.
+- npm name is reserved by npm's `0.0.0-stage` staged-publishing placeholder.
+  Do not unpublish it. Local `private: true` is deliberate: the first functional
+  release is `0.1.0`; do not publish `0.0.0`.
 - **`npm publish`, tags, and making the repo public are owner-only keys —
   agents never run them.** Release gate steps: `docs/RELEASING.md`.

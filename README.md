@@ -1,14 +1,15 @@
 # AsylumWarden
 
-**Status: architecture phase. No runtime code. The npm package `asylumwarden@0.0.0`
-is a name reservation; the first functional release will be `0.1.0`.**
+**Status: architecture phase. No runtime code. The npm name `asylumwarden` is
+reserved by npm's `0.0.0-stage` staged-publishing placeholder; the first
+functional release will be `0.1.0`.**
 
 AsylumWarden is a local, file-first control plane for multi-seat AI work. It
 keeps the plan, leases, receipts, and ledger on disk. It does not run a daemon,
 require a database, or replace the host's sandbox.
 
 - GitHub: <https://github.com/TachikomaGundam/AsylumWarden>
-- npm: `asylumwarden` (0.0.0 name reservation; no runtime code yet)
+- npm: `asylumwarden` (name reserved by `0.0.0-stage`; no runtime code yet)
 - License: MIT
 
 ## What it is
