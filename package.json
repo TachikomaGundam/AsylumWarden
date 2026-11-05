@@ -1,0 +1,29 @@
+{
+  "name": "@tachikomagundam/asylumwarden",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local, file-first control plane for multi-seat AI work: registry, DAG, leases, receipts, ledger.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.22.1"
+  },
+  "files": [
+    "src",
+    "schemas",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TachikomaGundam/AsylumWarden.git"
+  },
+  "homepage": "https://github.com/TachikomaGundam/AsylumWarden",
+  "bugs": {
+    "url": "https://github.com/TachikomaGundam/AsylumWarden/issues"
+  }
+}
