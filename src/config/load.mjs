@@ -58,7 +58,7 @@ export function findDuplicateKey(text) {
   let i = 0;
   let state = "value";
   const n = text.length;
-  const ws = (c) => WS_CHARS.has(c);
+  const ws = (c) => c === " " || c === "\t" || c === "\n" || c === "\r";
 
   const skipString = () => {
     i += 1; // opening quote

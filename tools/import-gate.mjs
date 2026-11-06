@@ -9,8 +9,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
-const NL = "\n"; // sanitize policy: one backslash per source line
-
 const ROOT = path.resolve(import.meta.dirname, "..");
 
 const FORBIDDEN_SUBSTRINGS = [
@@ -85,7 +83,7 @@ for (const field of ["dependencies", "peerDependencies", "optionalDependencies"]
 }
 
 if (violations.length > 0) {
-  process.stderr.write(`import gate FAIL${NL}${violations.join(NL)}${NL}`);
+  process.stderr.write(`import gate FAIL\n${violations.join("\n")}\n`);
   process.exit(2);
 }
 process.stdout.write("import gate OK: src/ and bin/ are node:stdlib+relative only; zero runtime deps\n");

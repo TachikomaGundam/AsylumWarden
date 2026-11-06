@@ -63,6 +63,10 @@ Target layout: handoff §11.
 - Build gate: `npm run gate:imports` (`node tools/import-gate.mjs`) —
   enforces `src/`+`bin/` import only `node:` stdlib and relative paths, and
   that `package.json` runtime dependency fields stay empty.
+- Host-identity invariant: `node tools/path-sanitize.mjs` — no real home
+  directory / username in tracked content. Repo code is written idiomatically;
+  external scanners' pattern quirks are never accommodated in source shape
+  (gate checks belong at the gate, run at push time).
 - No lint/format tooling yet. If introduced, pick explicitly and record
   commands here.
 

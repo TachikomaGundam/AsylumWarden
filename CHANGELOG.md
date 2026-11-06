@@ -51,3 +51,15 @@ majority = home-directory paths in repo content):
 - Documentation paths re-expressed as `~/...` (same value, no username)
   or neutral placeholders; the architecture-handoff mirror is replaced
   by a provenance pointer to the machine-local source.
+
+## practice correction — 2026-11-06 (owner ruling)
+
+Source shape is never bent to a scanner's incidental pattern set. The
+2026-11-06 sanitizer pass had rewritten idiomatic regex literals and
+built escape chars at runtime to dodge a Windows-path heuristic false
+positive — reversed. Idiomatic `\d`, `(\.\d{3})`, and `"\\$&"` escaping
+are restored byte-equivalent; `tools/path-sanitize.mjs` now guards only
+the real invariant (machine home directory / username stays out of
+tracked content). Gate-style checks run at the gate (border at push
+time), not inside the codebase. Real privacy fixes from the sanitizer
+(`~/` doc forms, config-driven `protect`) remain.

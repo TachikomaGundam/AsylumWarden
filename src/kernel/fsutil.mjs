@@ -10,7 +10,7 @@ export const CAP_LINE = 262_144; // 256 KiB — one ledger line
 export const CAP_STRING = 4096;
 
 export function nowIso() {
-  return new Date().toISOString().replace(/([.][0-9]{3})Z$/, "$1Z");
+  return new Date().toISOString();
 }
 
 export function expandHome(raw) {
