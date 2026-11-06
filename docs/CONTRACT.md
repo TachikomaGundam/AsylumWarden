@@ -88,7 +88,7 @@ exception (§10).
   "version": 1,
   "lines": {
     "abathur": {
-      "roots": ["~/workspace/harness/Abathur"],
+      "roots": ["/srv/lines/abathur"],
       "forbidden_surfaces": [".omo/evidence/INTENT-LEDGER.md"],
       "forbidden_absolute": [],
       "read_roots": []

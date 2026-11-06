@@ -50,10 +50,10 @@ src/kernel/ ─▶ node stdlib only
   errors after load).
 - `validateRegistrySemantics(registry, config)` — `ROOT-MISSING` (not dir),
   `ROOTS-OVERLAP` (within and across lines, equal-or-contains after
-  normalization), shadow: any root equal/contains
-  `~/workspace/harness/PCB-Agent` → `FORBIDDEN-ROOT`; also shadow
-  requires `state_home == shadow_home` (else CONFIG-INVALID) and registry
-  path == `<shadow_home>/shadow-registry.json`.
+  normalization), shadow: `protect` key required (missing → CONFIG-INVALID;
+  empty array legal) and any root equal/contains a `protect` entry →
+  `FORBIDDEN-ROOT`; also shadow requires `state_home == shadow_home` (else
+  CONFIG-INVALID) and registry path == `<shadow_home>/shadow-registry.json`.
 - `buildPolicy({config, registry})` → `policy`:
   - `policy.line(name)` → `{name, roots, forbiddenRel[], forbiddenAbs[],
     readRoots[]}` (patterns compiled lazily) — unknown line → `REGISTRY-INVALID`.

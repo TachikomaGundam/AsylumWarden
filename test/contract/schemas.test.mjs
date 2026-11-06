@@ -15,10 +15,10 @@ const HEX = "0123456789abcdef".repeat(4);
 const fixtures = {
   config: () => ({
     version: 1,
-    registry: "~/.config/asylumwarden/registry.json",
+    registry: "/srv/config/asylumwarden/registry.json",
     registry_sha256: HEX,
     self: "demo",
-    state_home: "~/.local/state/asylumwarden",
+    state_home: "/srv/state/asylumwarden",
     mode: "normal",
     kinds: { verify: { description: "independent review, read-only" } },
     anchor: { type: "file", target: "/srv/anchor/chain.log", signer: "ops" },
@@ -124,20 +124,27 @@ test("config: variants and rejections", async () => {
   delete minimal.anchor;
   assert.deepEqual(await check("config", minimal), []);
 
-  // shadow variant: requires shadow_of + shadow_home
+  // shadow variant: requires shadow_of + shadow_home + protect
   const shadow = {
     ...fixtures.config(),
     mode: "shadow",
     shadow_of: "a".repeat(64),
-    shadow_home: "~/.local/state/asylumwarden-shadow-pcb",
+    shadow_home: "/srv/state/asylumwarden-shadow-pcb",
+    protect: ["/srv/protected-root"],
   };
   assert.deepEqual(await check("config", shadow), []);
+  assert.deepEqual(await check("config", { ...shadow, protect: [] }), [], "empty protect is legal");
 
   assert.ok((await check("config", { ...shadow, shadow_of: "zz" })).length > 0, "shadow_of must be 64hex");
   const noHome = { ...shadow };
   delete noHome.shadow_home;
   assert.ok((await check("config", noHome)).length > 0, "shadow mode requires shadow_home");
-  assert.ok((await check("config", { ...fixtures.config(), mode: "normal", shadow_of: "a".repeat(64), shadow_home: "/x" })).length > 0,
+  const noProtect = { ...shadow };
+  delete noProtect.protect;
+  assert.ok((await check("config", noProtect)).length > 0, "shadow mode requires protect");
+  assert.ok((await check("config", { ...shadow, protect: "not-an-array" })).length > 0, "protect must be an array");
+  assert.ok((await check("config", { ...shadow, protect: ["relative/path"] })).length > 0, "protect items must be absolute");
+  assert.ok((await check("config", { ...fixtures.config(), mode: "normal", shadow_of: "a".repeat(64), shadow_home: "/x", protect: [] })).length > 0,
     "shadow keys forbidden in normal mode");
 
   assert.ok((await check("config", { ...fixtures.config(), version: 2 })).length > 0);

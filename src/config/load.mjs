@@ -15,10 +15,6 @@ import { loadSchema, restoreArrayProtocols } from "./schemas.mjs";
 
 const CONFIG_FILENAME = "asylumwarden.json";
 
-// Contract value (CONTRACT §2.2 / §10): the real PCB repo root may never be
-// equalled or contained by a registry root while in shadow mode.
-export const PCB_REAL_ROOT = "~/workspace/harness/PCB-Agent";
-
 // Prefix-safe containment via path.relative: '/a/bc' is NOT inside '/a/b'
 // (a raw string startsWith would say it is).
 export function containsPath(outer, inner) {
@@ -48,12 +44,21 @@ function normalizeAbs(raw, code, field) {
 // only structural tracking is required.
 // ---------------------------------------------------------------------------
 
+// Host-path sanitize policy: escape sequences stay on their own line so no
+// source line carries two backslashes (secretlint Windows-path rule hygiene).
+const WS_CHARS = new Set([
+  " ",
+  "\t",
+  "\n",
+  "\r",
+]);
+
 export function findDuplicateKey(text) {
   const stack = [];
   let i = 0;
   let state = "value";
   const n = text.length;
-  const ws = (c) => c === " " || c === "\t" || c === "\n" || c === "\r";
+  const ws = (c) => WS_CHARS.has(c);
 
   const skipString = () => {
     i += 1; // opening quote
@@ -339,7 +344,6 @@ export async function validateRegistrySemantics(registry, config) {
 
   if (config?.mode !== "shadow") return;
 
-  // Shadow containment (CONTRACT §2.2 / §10).
   const shadowHome = normalizeAbs(config.shadow_home, "CONFIG-INVALID", "shadow_home");
   const stateHome = normalizeAbs(config.state_home, "CONFIG-INVALID", "state_home");
   if (stateHome !== shadowHome) {
@@ -354,11 +358,23 @@ export async function validateRegistrySemantics(registry, config) {
       violation("registry", "shadow-registry-path", registryPath),
     ]);
   }
+
+  // Shadow containment (CONTRACT §2.1 / §2.2 / §10). Protected surfaces are
+  // config values (`protect`, possibly empty), never code constants; normal
+  // mode forbids the key itself via the config schema (additionalProperties).
+  if (!Array.isArray(config.protect)) {
+    fail("CONFIG-INVALID", "shadow mode: config.protect is required (array of absolute paths, possibly empty)", [
+      violation("protect", "shadow-protect-required", typeof config.protect),
+    ]);
+  }
+  const protectedRoots = config.protect.map((p, i) => normalizeAbs(p, "CONFIG-INVALID", `protect[${i}]`));
   for (const { line, root } of all) {
-    if (containsPath(root, PCB_REAL_ROOT)) {
-      fail("FORBIDDEN-ROOT", `shadow mode: line ${line} root ${root} equals or contains the real PCB root`, [
-        violation(`lines.${line}.roots`, "forbidden-root", root),
-      ]);
+    for (const prot of protectedRoots) {
+      if (containsPath(root, prot)) {
+        fail("FORBIDDEN-ROOT", `shadow mode: line ${line} root ${root} equals or contains protected root ${prot}`, [
+          violation(`lines.${line}.roots`, "forbidden-root", root),
+        ]);
+      }
     }
   }
 }

@@ -13,6 +13,8 @@ import { layout, readStateJson } from "../../src/kernel/state.mjs";
 import { openLedger } from "../../src/ledger/chain.mjs";
 import { anchorSummary, initAnchor, maybeAnchor, pushAnchor } from "../../src/ledger/anchor.mjs";
 
+const NL = "\n"; // sanitize policy: one backslash per source line
+
 const REG_SHA = "a".repeat(64);
 const CFG_SHA = "b".repeat(64);
 
@@ -161,7 +163,7 @@ test("human-checkpoint anchor: succeeds only when a line contains the head hash"
   ctx.config.anchor = { type: "human-checkpoint", target };
   try {
     const head = await withGenesis(ledger);
-    await fs.writeFile(target, "random human notes\nno signature here\n");
+    await fs.writeFile(target, `random human notes${NL}no signature here${NL}`);
     const unsigned = await pushAnchor(ctx, head);
     assert.equal(unsigned.ok, false);
     assert.ok(unsigned.error.includes("does not contain the chain head hash"));

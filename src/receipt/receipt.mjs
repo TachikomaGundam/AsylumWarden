@@ -24,7 +24,7 @@ import { readCell, writeCell, HEX64_RE, SAFE_ID_RE } from "../kernel/state.mjs";
 import { withExclusiveLock } from "../kernel/lock.mjs";
 import { validateSchema } from "../kernel/schemalite.mjs";
 
-const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/;
+const ISO_RE = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{1,9})?(Z|[+-][0-9]{2}:[0-9]{2})$/;
 const LEASE_KEYS = new Set([
   "actor",
   "pid",
@@ -319,7 +319,7 @@ async function validateReads(ctx, receipt, cellRow) {
 function validateShadow(ctx, receipt, wave, artifactReals) {
   if (ctx.mode !== "shadow") return;
   if (receipt.mode !== "shadow" || !HEX64_RE.test(String(receipt.shadow_of ?? ""))) {
-    fail("SCHEMA-VIOLATION", "shadow receipt must carry mode=\"shadow\" and a 64hex shadow_of", [
+    fail("SCHEMA-VIOLATION", `shadow receipt must carry mode="shadow" and a 64hex shadow_of`, [
       violation("shadow_of", "shadow-shape", String(receipt.shadow_of)),
     ]);
   }

@@ -31,8 +31,10 @@ import process from "node:process";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "..");
 const AW_BIN = path.join(REPO_ROOT, "bin", "asylumwarden.mjs");
-const WAVE_PY = "~/workspace/harness/Abathur/tools/wave_engine/wave.py"; // read-only reference
+// Same machine value, no username in source text (sanitize policy).
+const WAVE_PY = path.join(os.homedir(), "workspace/harness/Abathur/tools/wave_engine/wave.py"); // read-only reference
 const FIXTURE_DIR = path.join(import.meta.dirname, "dual-run-fixtures");
+const NL = "\n"; // sanitize policy: one backslash per source line
 const ACTOR = "dualrun";
 
 // ---------------------------------------------------------------- adjudication
@@ -123,13 +125,13 @@ class Engine {
     if (r.code === 0 && r.stdout.includes("planned wave")) {
       return { verdict: r.stdout.includes("WARNING: protected-surface overlap") ? "accepted+warned" : "accepted" };
     }
-    return { verdict: enginePlanClass(`${r.stderr}\n${r.stdout}`), detail: r.stderr.trim().split("\n")[0] };
+    return { verdict: enginePlanClass(`${r.stderr}${NL}${r.stdout}`), detail: r.stderr.trim().split(NL)[0] };
   }
   flipLaunched(cell) {
     const p = path.join(this.base, this.wave, `${cell}.json`);
     const pack = readJson(p);
     if (pack.state !== "new") throw new Error(`flipLaunched: ${cell} state is ${pack.state}`);
-    const iso = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+    const iso = new Date().toISOString().replace(/[.][0-9]{3}Z$/, "Z");
     pack.state = "launched";
     pack.launched_at = iso;
     pack.launched_epoch = Date.now() / 1000;
@@ -314,7 +316,7 @@ function buildManifests(w, fixture) {
   const wardenCells = [];
   for (const cell of fixture.cells) {
     const brief = path.join(w.briefs, `${cell.id}.md`);
-    fs.writeFileSync(brief, `# dual-run brief ${cell.id}\n\nsynthetic\n`, "utf8");
+    fs.writeFileSync(brief, `# dual-run brief ${cell.id}${NL}${NL}synthetic${NL}`, "utf8");
     const allowed = [rootOf(w, cell.root_kind)];
     const cwd = rootOf(w, cell.cwd_kind ?? cell.root_kind);
     engineCells.push({

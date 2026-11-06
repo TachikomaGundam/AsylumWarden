@@ -226,7 +226,7 @@ test("planWave writes meta + cells and appends the plan event", async (t) => {
   assert.equal(meta.wave, "w1");
   assert.equal(meta.config_sha256, ctx.configSha256);
   assert.equal(meta.registry_sha256, ctx.registrySha256);
-  assert.match(meta.created_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  assert.match(meta.created_at, /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[.][0-9]{3}Z$/);
   assert.deepEqual(Object.keys(meta.cells), ["c1"]);
   assert.match(meta.cells.c1, /^[0-9a-f]{64}$/);
 

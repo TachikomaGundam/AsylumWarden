@@ -14,6 +14,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+const NL = "\n"; // sanitize policy: one backslash per source line
+
 const REPO = path.resolve(import.meta.dirname, "../..");
 const BIN = path.join(REPO, "bin/asylumwarden.mjs");
 const SPAWN_OPTS = { encoding: "utf8", timeout: 30_000, maxBuffer: 8 << 20, stdio: ["ignore", "pipe", "pipe"] };
@@ -286,7 +288,7 @@ test("T8 row 4: claim cell whose dep failed — CELL-STATE exit 1 listing the bl
   assert.equal(blocked.code, 1);
   assert.equal(blocked.json.code, "CELL-STATE");
   assert.match(JSON.stringify(blocked.json.violations), /deps\.c1/);
-  assert.match(blocked.json.message, /c1\(failed\)/);
+  assert.match(blocked.json.message, /c1[(]failed[)]/);
   assert.equal(cellState(w, "w4", "c2").state, "pending", "rejection left zero mutation");
 });
 
@@ -322,7 +324,7 @@ test("T8 row 5: shadow isolation — state_home mismatch, non-shadow wave id, re
   const writeConfig = (over) => fs.writeFileSync(configPath, `${JSON.stringify({
     version: 1, registry: shadowRegPath, registry_sha256: shadowRegSha,
     self: "pcbshadow", state_home: shadowHome, mode: "shadow",
-    shadow_of: shadowRegSha, shadow_home: shadowHome, kinds: {}, anchor: null,
+    shadow_of: shadowRegSha, shadow_home: shadowHome, protect: [], kinds: {}, anchor: null,
     ...over,
   }, null, 2)}\n`);
 
@@ -430,7 +432,7 @@ test("T8 row 7: same-uid chain shortening is undetectable without external ancho
 
   // Same-uid rewrite: drop the last (done) line. The remaining prefix is a
   // valid chain by construction — nothing inside the file marks the cut.
-  fs.writeFileSync(ledgerPath, `${full.slice(0, 3).join("\n")}\n`);
+  fs.writeFileSync(ledgerPath, `${full.slice(0, 3).join(NL)}${NL}`);
 
   const v1 = w.run(["verify", "--config", w.configPath]);
   assert.equal(v1.code, 0, `shortened chain must still verify: ${JSON.stringify(v1.json)}`);

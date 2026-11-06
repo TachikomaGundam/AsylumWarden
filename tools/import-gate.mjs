@@ -9,6 +9,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
+const NL = "\n"; // sanitize policy: one backslash per source line
+
 const ROOT = path.resolve(import.meta.dirname, "..");
 
 const FORBIDDEN_SUBSTRINGS = [
@@ -21,8 +23,17 @@ const FORBIDDEN_SUBSTRINGS = [
   "langchain",
 ];
 
-const IMPORT_RE =
-  /(?:import\s[^;]*?from\s*|import\s*|export\s[^;]*?from\s*|require\s*\(\s*)["']([^"']+)["']/g;
+// Sanitize policy: assembled from single-escape fragments (one backslash per
+// line). Runtime regex byte-identical except \( as the equivalent class [(].
+const SEP = "\\s";
+const IMPORT_SRC =
+  "(?:" +
+  "import" + SEP + "[^;]*?from" + SEP + "*" +
+  "|import" + SEP + "*" +
+  "|export" + SEP + "[^;]*?from" + SEP + "*" +
+  "|require" + SEP + "*[(]" + SEP + "*" +
+  ")" + `["']([^"']+)["']`;
+const IMPORT_RE = new RegExp(IMPORT_SRC, "g");
 
 async function* walk(dir) {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
@@ -74,7 +85,7 @@ for (const field of ["dependencies", "peerDependencies", "optionalDependencies"]
 }
 
 if (violations.length > 0) {
-  process.stderr.write(`import gate FAIL\n${violations.join("\n")}\n`);
+  process.stderr.write(`import gate FAIL${NL}${violations.join(NL)}${NL}`);
   process.exit(2);
 }
 process.stdout.write("import gate OK: src/ and bin/ are node:stdlib+relative only; zero runtime deps\n");

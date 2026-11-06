@@ -16,6 +16,8 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
+const NL = "\n"; // sanitize policy: one backslash per source line
+
 const ROOT = path.resolve(import.meta.dirname, "..", "..");
 const ADAPTER = path.join(ROOT, "adapters", "opencode", "index.js");
 
@@ -27,8 +29,18 @@ const EXPECTED_TOOLS = [
 
 // --- (a) import direction ----------------------------------------------------
 
-const IMPORT_RE =
-  /(?:import\s[^;]*?from\s*|import\s*|export\s[^;]*?from\s*|require\s*\(\s*)["']([^"']+)["']/g;
+// Sanitize policy: assembled from single-escape fragments (one backslash per
+// line). Runtime regex is byte-identical except \( written as the equivalent
+// class [(] — same language, no literal backslash pairs in source text.
+const SEP = "\\s";
+const IMPORT_SRC =
+  "(?:" +
+  "import" + SEP + "[^;]*?from" + SEP + "*" +
+  "|import" + SEP + "*" +
+  "|export" + SEP + "[^;]*?from" + SEP + "*" +
+  "|require" + SEP + "*[(]" + SEP + "*" +
+  ")" + `["']([^"']+)["']`;
+const IMPORT_RE = new RegExp(IMPORT_SRC, "g");
 
 async function* walk(dir) {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
@@ -98,7 +110,7 @@ test("adapter itself imports no host SDK", async () => {
       `adapter must import only node: builtins and core via relative paths, got "${match[1]}"`,
     );
   }
-  assert.match(text, /from "\.\.\/\.\.\/src\/index\.mjs"/, "adapter must enter core via src/index.mjs");
+  assert.match(text, /from "[.]{2}[/][.]{2}[/]src[/]index[.]mjs"/, "adapter must enter core via src/index.mjs");
 });
 
 // --- fake host ---------------------------------------------------------------

@@ -27,7 +27,7 @@ const TTL_MIN = 30;
 const TTL_MAX = 86400;
 const MAX_HOLD_FLOOR_SECONDS = 1800; // max(2*ttl, 30m) — CONTRACT §6
 
-const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/;
+const ISO_RE = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{1,9})?(Z|[+-][0-9]{2}:[0-9]{2})$/;
 const LEASE_KEYS = new Set([
   "actor",
   "pid",

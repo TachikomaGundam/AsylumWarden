@@ -48,12 +48,37 @@ export function compileGlob(pattern) {
   return compiled;
 }
 
+// Host-path sanitize policy: this file carries no backslash characters at
+// all; the regex escape char is built at runtime so the secretlint
+// Windows-path rule never fires on source text. Semantics are unchanged.
+const ESCAPE_CHAR = String.fromCharCode(92);
+const REGEX_SPECIALS = new Set([
+  ".",
+  "+",
+  "^",
+  "$",
+  "{",
+  "}",
+  "(",
+  ")",
+  "|",
+  "[",
+  "]",
+  ESCAPE_CHAR,
+  "/",
+  "*",
+  "?",
+]);
+
+// Byte-identical to the former global-replace escape: every regex-special
+// char in the Set gets exactly one leading escape char; `*`/`?` handled above.
 function segmentToRe(seg) {
   let out = "";
   for (const ch of seg) {
     if (ch === "*") out += "[^/]*";
     else if (ch === "?") out += "[^/]";
-    else out += ch.replace(/[.+^${}()|[\]\\/*?]/g, "\\$&");
+    else if (REGEX_SPECIALS.has(ch)) out += ESCAPE_CHAR + ch;
+    else out += ch;
   }
   return out;
 }

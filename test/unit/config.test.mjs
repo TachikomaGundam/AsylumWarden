@@ -7,7 +7,6 @@ import os from "node:os";
 import path from "node:path";
 
 import {
-  PCB_REAL_ROOT,
   buildPolicy,
   containsPath,
   findDuplicateKey,
@@ -15,7 +14,11 @@ import {
   loadRegistry,
   validateRegistrySemantics,
 } from "../../src/config/load.mjs";
-import { makeLayout, tempRoot, writeJson } from "../helpers.mjs";
+import { makeLayout, rewriteRegistry, tempRoot, writeJson } from "../helpers.mjs";
+
+// Host-path sanitize policy: no source line may hold two backslashes, so the
+// regex escape for \s lives in one constant on its own line.
+const SEP = "\\s";
 
 async function expectFail(fn, code) {
   try {
@@ -147,7 +150,7 @@ test("duplicate JSON keys in registry fail closed REGISTRY-INVALID", async (t) =
   const text = await fs.readFile(fx.registryPath, "utf8");
   // Second "lines" key after the first closes; JSON.parse would silently last-win.
   const injected = text.replace(
-    /\}\s*\}\s*$/,
+    new RegExp("[}]" + SEP + "*[}]" + SEP + "*$"),
     '}, "lines": { "demo": { "roots": ["/tmp"], "forbidden_surfaces": [] } } }',
   );
   assert.notEqual(injected, text, "fixture injection must land");
@@ -279,15 +282,41 @@ test("shadow: registry must be <shadow_home>/shadow-registry.json", async (t) =>
   await expectFail(() => validateRegistrySemantics(reg.registry, tampered), "CONFIG-INVALID");
 });
 
-test("shadow: roots equal to or containing the real PCB root are FORBIDDEN-ROOT", async (t) => {
-  for (const root of [PCB_REAL_ROOT, path.dirname(PCB_REAL_ROOT)]) {
-    const fx = await makeLayout(t, {
-      shadow: true,
-      registry: { version: 1, lines: { pcb: { roots: [root], forbidden_surfaces: [], forbidden_absolute: [], read_roots: [] } } },
+test("shadow: roots equal to or containing a protect entry are FORBIDDEN-ROOT", async (t) => {
+  // Protected roots are config values (CONTRACT §2.1): the fixture declares
+  // protect: [<tmp>/protected-root]; equal AND containing roots both fail.
+  for (const pick of ["equal", "containing"]) {
+    const fx = await makeLayout(t, { shadow: true });
+    const root = pick === "equal" ? fx.protectedRoot : fx.dir;
+    await rewriteRegistry(fx, {
+      version: 1,
+      lines: { pcb: { roots: [root], forbidden_surfaces: [], forbidden_absolute: [], read_roots: [] } },
     });
     const loaded = await loadProjectConfig({ cwd: fx.dir });
     await expectFail(() => loadRegistry(loaded), "FORBIDDEN-ROOT");
   }
+});
+
+test("shadow: sibling protect entry does not gate a clean layout", async (t) => {
+  const fx = await makeLayout(t, { shadow: true });
+  const loaded = await loadProjectConfig({ cwd: fx.dir });
+  await loadRegistry(loaded); // must not throw: lineA/other do not contain protected-root
+});
+
+test("shadow: empty protect is legal (operator declared no protected roots)", async (t) => {
+  const fx = await makeLayout(t, { shadow: true, configOverrides: { protect: [] } });
+  const loaded = await loadProjectConfig({ cwd: fx.dir });
+  const reg = await loadRegistry(loaded);
+  assert.equal(reg.registryPath, path.join(fx.shadowHome, "shadow-registry.json"));
+});
+
+test("shadow: missing protect key is CONFIG-INVALID (required, fail-closed)", async (t) => {
+  const fx = await makeLayout(t, { shadow: true });
+  const loaded = await loadProjectConfig({ cwd: fx.dir });
+  const reg = await loadRegistry(loaded);
+  const stripped = { ...loaded.config };
+  delete stripped.protect;
+  await expectFail(() => validateRegistrySemantics(reg.registry, stripped), "CONFIG-INVALID");
 });
 
 // ---------------------------------------------------------------------------

@@ -152,10 +152,10 @@ test("fsutil: expandHome and pidAlive", () => {
 });
 
 test("state: layout builds contract paths", () => {
-  const sl = layout("/home/u/.local/state/asylumwarden");
-  assert.equal(sl.ledger, "/home/u/.local/state/asylumwarden/ledger.jsonl");
-  assert.equal(sl.cellFile("w1", "c1"), "/home/u/.local/state/asylumwarden/waves/w1/cells/c1.json");
-  assert.equal(sl.ownerFile("w1", "c1"), "/home/u/.local/state/asylumwarden/waves/w1/leases/c1/owner.json");
+  const sl = layout("/srv/u/.local/state/asylumwarden");
+  assert.equal(sl.ledger, "/srv/u/.local/state/asylumwarden/ledger.jsonl");
+  assert.equal(sl.cellFile("w1", "c1"), "/srv/u/.local/state/asylumwarden/waves/w1/cells/c1.json");
+  assert.equal(sl.ownerFile("w1", "c1"), "/srv/u/.local/state/asylumwarden/waves/w1/leases/c1/owner.json");
 });
 
 test("state: safe id regex", () => {

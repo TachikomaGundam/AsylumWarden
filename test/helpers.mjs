@@ -65,11 +65,16 @@ export async function makeLayout(t, { shadow = false, registry = null, configOve
   let registryPath;
   let stateHome;
   let shadowHome = null;
+  let protectedRoot = null;
   if (shadow) {
     shadowHome = path.join(dir, "shadow");
     await fs.mkdir(shadowHome, { recursive: true });
     registryPath = path.join(shadowHome, "shadow-registry.json");
     stateHome = shadowHome;
+    // CONTRACT §2.1 shadow protect: a real protected dir the shadow line
+    // must never equal or contain (CONTRACT §2.2 FORBIDDEN-ROOT).
+    protectedRoot = path.join(dir, "protected-root");
+    await fs.mkdir(protectedRoot, { recursive: true });
   } else {
     registryPath = path.join(dir, "registry.json");
     stateHome = path.join(dir, "state");
@@ -90,13 +95,26 @@ export async function makeLayout(t, { shadow = false, registry = null, configOve
   if (shadow) {
     config.shadow_of = "a".repeat(64);
     config.shadow_home = shadowHome;
+    config.protect = [protectedRoot];
   }
   if (configOverrides !== null) config = { ...config, ...configOverrides };
 
   const configPath = path.join(dir, "asylumwarden.json");
   await writeJson(configPath, config);
 
-  return { dir, lineRoot, workDir, otherRoot, registryPath, registrySha256, stateHome, shadowHome, configPath, config };
+  return {
+    dir,
+    lineRoot,
+    workDir,
+    otherRoot,
+    registryPath,
+    registrySha256,
+    stateHome,
+    shadowHome,
+    protectedRoot,
+    configPath,
+    config,
+  };
 }
 
 // Swap the registry after layout creation (when the custom registry needs the

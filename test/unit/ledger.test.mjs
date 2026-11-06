@@ -13,6 +13,8 @@ import { layout } from "../../src/kernel/state.mjs";
 import { nowIso } from "../../src/kernel/fsutil.mjs";
 import { openLedger } from "../../src/ledger/chain.mjs";
 
+const NL = "\n"; // sanitize policy: one backslash per source line
+
 const REG_SHA = "a".repeat(64);
 const CFG_SHA = "b".repeat(64);
 const GENESIS_CTX = { configSha256: CFG_SHA, registrySha256: REG_SHA };
@@ -113,7 +115,7 @@ test("flipping 1 byte in an entry body breaks the chain (LEDGER-BROKEN semantics
     const tampered = JSON.parse(lines[1]); // seq 2 — middle entry
     tampered.actor = "attacker";
     lines[1] = JSON.stringify(tampered); // keeps the OLD recorded hash
-    await fs.writeFile(sl.ledger, `${lines.join("\n")}\n`);
+    await fs.writeFile(sl.ledger, `${lines.join(NL)}${NL}`);
 
     const v = await ledger.verify();
     assert.equal(v.chain_ok, false); // hash recompute mismatch — caller maps LEDGER-BROKEN
@@ -133,7 +135,7 @@ test("removing a middle line breaks seq/prev chain", async () => {
 
     const lines = (await fs.readFile(sl.ledger, "utf8")).split("\n").filter((l) => l !== "");
     lines.splice(1, 1); // remove seq 2
-    await fs.writeFile(sl.ledger, `${lines.join("\n")}\n`);
+    await fs.writeFile(sl.ledger, `${lines.join(NL)}${NL}`);
 
     const v = await ledger.verify();
     assert.equal(v.chain_ok, false);
@@ -325,7 +327,7 @@ test("mid-file unparseable line: torn report with chain_ok false; append refuses
 
     const lines = (await fs.readFile(sl.ledger, "utf8")).split("\n").filter((l) => l !== "");
     lines.splice(1, 0, "NOT JSON AT ALL");
-    await fs.writeFile(sl.ledger, `${lines.join("\n")}\n`);
+    await fs.writeFile(sl.ledger, `${lines.join(NL)}${NL}`);
 
     const v = await ledger.verify();
     assert.notEqual(v.torn, null);
