@@ -66,8 +66,13 @@ Required keys: `version`, `registry`, `registry_sha256`, `self`,
 `version` is exactly `1`.
 
 When `mode == "shadow"`, the config must also carry `shadow_of` (64hex, the
-sha256 of the real registry at shadow-creation time) and `shadow_home`
-(absolute path). These two keys are forbidden in `normal` mode.
+sha256 of the real registry at shadow-creation time), `shadow_home`
+(absolute path), and `protect` (array of absolute paths, possibly empty).
+`protect` names roots the shadow line must never equal or contain — the
+machine-specific protected surfaces (for the PCB pilot line it is that
+machine's PCB repo root, declared in the machine's shadow config, never
+hardcoded in this repository). These three keys are forbidden in `normal`
+mode.
 
 Validation failures: `CONFIG-INVALID` (shape/type/value), `CONFIG-DRIFT`
 (`registry_sha256` does not equal the sha256 of the registry file bytes).
@@ -106,8 +111,10 @@ Registry validation (all fail closed):
 - `ROOT-MISSING`: a root does not exist or is not a directory.
 - `ROOTS-OVERLAP`: within one line, or across lines, a root equals or
   contains another root.
-- `FORBIDDEN-ROOT`: in shadow mode, any root equal to or containing the real
-  PCB repo root `~/workspace/harness/PCB-Agent`.
+- `FORBIDDEN-ROOT`: in shadow mode, any root equal to or containing an entry
+  of the config's `protect` array (§2.1). Protected surfaces are config
+  values, never code constants; an empty `protect` means the operator
+  declared no protected roots.
 - Relative `forbidden_surfaces` resolve against line root #1; use
   `forbidden_absolute` for any cross-line protection (relative patterns
   anchored at a foreign line root fail closed with `GLOB-INVALID`).
@@ -426,8 +433,8 @@ loading, including rejected operations (payload carries the rejection code).
 
 ## 10. Shadow mode
 
-- Activated by `mode: "shadow"` config. Requires `shadow_of` and
-  `shadow_home`.
+- Activated by `mode: "shadow"` config. Requires `shadow_of`, `shadow_home`,
+  and `protect` (§2.1).
 - Shadow registry: fixed path `<shadow_home>/shadow-registry.json` — the
   named exception to §2.2. Shadow ledger: `<shadow_home>/ledger.jsonl`.
   Shadow state never shares files with `state_home` of the real line; the
@@ -436,8 +443,8 @@ loading, including rejected operations (payload carries the rejection code).
 - Every shadow wave id must start with `shadow-` (validator-enforced).
 - Every shadow receipt must carry `mode: "shadow"` and `shadow_of`.
 - `done` in shadow mode additionally rejects artifacts outside
-  `shadow_home` and any registry root equal to or containing the real PCB
-  repo root (`FORBIDDEN-ROOT`).
+  `shadow_home`; registry validation rejects any root equal to or containing
+  a `protect` entry (`FORBIDDEN-ROOT`).
 - Shadow receipts are never approval evidence: they can never satisfy a
   read-side check for `state/plan-approvals/**` or any other line's
   approval surfaces. Consumers treat `mode: "shadow"` as non-authoritative

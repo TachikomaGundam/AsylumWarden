@@ -54,6 +54,11 @@
             "mode": { "const": "shadow" },
             "shadow_of": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
             "shadow_home": { "type": "string", "pattern": "^/" },
+            "protect": {
+              "type": "array",
+              "maxItems": 64,
+              "items": { "type": "string", "pattern": "^~?/" }
+            },
             "kinds": {
               "type": "object",
               "additionalProperties": {
@@ -79,7 +84,7 @@
               ]
             }
           },
-          "required": ["version", "registry", "registry_sha256", "self", "state_home", "mode", "shadow_of", "shadow_home"],
+          "required": ["version", "registry", "registry_sha256", "self", "state_home", "mode", "shadow_of", "shadow_home", "protect"],
           "additionalProperties": false
         }
       ]
