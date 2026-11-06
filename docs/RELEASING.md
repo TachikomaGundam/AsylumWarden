@@ -47,3 +47,12 @@ Before a tag:
 3. The tarball excludes `.env`, state, logs, and local absolute paths.
 4. The release receipt is committed.
 5. The owner pushes the tag and publishes; the agent does not hold the key.
+
+## opencode plugin consumers (route B)
+
+`package.json` exports `./server` for the opencode plugin loader: consumers
+add `"asylumwarden@<version>"` to their `plugin` array. The adapter imports
+core through relative paths inside the package, so no extra runtime
+dependency is required. Verified by `test/contract/adapter.test.mjs` and a
+live `opencode serve` probe (12 `warden_*` tool ids, 2026-11-05).
+PCB sessions must never add this plugin (`docs/PILOT-PCB.md`: CLI-only).

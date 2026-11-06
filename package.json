@@ -15,10 +15,15 @@
     "test": "node --test 'test/**/*.test.mjs'",
     "gate:imports": "node tools/import-gate.mjs"
   },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./server": "./adapters/opencode/index.js"
+  },
   "files": [
     "src",
     "schemas",
     "bin",
+    "adapters",
     "README.md",
     "LICENSE"
   ],
