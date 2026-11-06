@@ -1,0 +1,22 @@
+{
+  "fixture": "f2-root-not-declared",
+  "probe_prefix": "f2",
+  "_purpose": "Cell allowed_root sits under no declared line root (world/outside). Engine only rejects cross-line overlap (wave.py validate_manifest) and ACCEPTS; warden requires allowed_roots inside the line roots (CONTRACT 3, writableRootOf) and rejects PATH-ESCAPE. Warden stricter -> EXPECTED-DIVERGENT.",
+  "wave": "dualrun-f2",
+  "cells": [
+    {
+      "id": "loose",
+      "kind": "gen",
+      "root_kind": "outside",
+      "deps": []
+    }
+  ],
+  "expected": [
+    {
+      "probe": "f2:plan",
+      "engine": "accepted",
+      "warden": "reject:PATH-ESCAPE",
+      "verdict": "EXPECTED-DIVERGENT"
+    }
+  ]
+}

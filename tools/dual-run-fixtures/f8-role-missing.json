@@ -1,0 +1,33 @@
+{
+  "fixture": "f8-role-missing",
+  "probe_prefix": "f8",
+  "_purpose": "Cell declares role 'ghost'; <role-dir>/ghost.md does not exist. Engine: plan rejects the WHOLE manifest with UNKNOWN-ROLE (wave.py role_check). Warden: missing role_file = no snapshot, claim proceeds (src/lease/lease.mjs documented choice; NOTE the brief's 'CHANGELOG 63752b1 era note' does not exist in CHANGELOG.md). EXPECTED-DIVERGENT.",
+  "wave": "dualrun-f8",
+  "cells": [
+    {
+      "id": "ghost",
+      "kind": "gen",
+      "root_kind": "work",
+      "deps": []
+    }
+  ],
+  "role": {
+    "role": "ghost",
+    "role_file_exists": false,
+    "session_offset_seconds": 0
+  },
+  "expected": [
+    {
+      "probe": "f8:plan",
+      "engine": "reject:UNKNOWN-ROLE",
+      "warden": "accepted",
+      "verdict": "EXPECTED-DIVERGENT"
+    },
+    {
+      "probe": "f8:claim",
+      "engine": "n/a(plan-rejected)",
+      "warden": "ok",
+      "verdict": "EXPECTED-DIVERGENT"
+    }
+  ]
+}

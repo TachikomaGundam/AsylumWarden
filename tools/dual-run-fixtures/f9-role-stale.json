@@ -1,0 +1,33 @@
+{
+  "fixture": "f9-role-stale",
+  "probe_prefix": "f9",
+  "_purpose": "Role file exists but postdates session start (offset -7200s). Both produce RESTART-REQUIRED but at different gates: engine at PLAN (whole manifest INVALID), warden at CLAIM (single cell, retryable exit 1). Gate placement is the divergence -> EXPECTED-DIVERGENT.",
+  "wave": "dualrun-f9",
+  "cells": [
+    {
+      "id": "stale",
+      "kind": "gen",
+      "root_kind": "work",
+      "deps": []
+    }
+  ],
+  "role": {
+    "role": "stale",
+    "role_file_exists": true,
+    "session_offset_seconds": -7200
+  },
+  "expected": [
+    {
+      "probe": "f9:plan",
+      "engine": "reject:RESTART-REQUIRED",
+      "warden": "accepted",
+      "verdict": "EXPECTED-DIVERGENT"
+    },
+    {
+      "probe": "f9:claim",
+      "engine": "n/a(plan-rejected)",
+      "warden": "reject:RESTART-REQUIRED",
+      "verdict": "EXPECTED-DIVERGENT"
+    }
+  ]
+}

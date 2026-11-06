@@ -1,0 +1,22 @@
+{
+  "fixture": "f3-forbidden-hit",
+  "probe_prefix": "f3",
+  "_purpose": "Cell allowed_root equals a forbidden surface (lineA/protected, relative pattern 'protected'). Both hard-reject at plan: engine INVALID 'protected surface', warden FORBIDDEN-ROOT (SECURITY.md 2 pins equal-or-inside as hard rejection).",
+  "wave": "dualrun-f3",
+  "cells": [
+    {
+      "id": "hit",
+      "kind": "gen",
+      "root_kind": "protected",
+      "deps": []
+    }
+  ],
+  "expected": [
+    {
+      "probe": "f3:plan",
+      "engine": "reject:FORBIDDEN",
+      "warden": "reject:FORBIDDEN-ROOT",
+      "verdict": "MATCH"
+    }
+  ]
+}

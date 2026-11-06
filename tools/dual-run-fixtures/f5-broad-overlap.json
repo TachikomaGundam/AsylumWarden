@@ -1,0 +1,22 @@
+{
+  "fixture": "f5-broad-overlap",
+  "probe_prefix": "f5",
+  "_purpose": "Allowed root = whole lineA, which CONTAINS the protected surface. Warning class on both, not a rejection: engine 'WARNING: protected-surface overlap' + accept; warden plan succeeds with broad-root warnings (CONTRACT 3: board-wide grants stay usable).",
+  "wave": "dualrun-f5",
+  "cells": [
+    {
+      "id": "broad",
+      "kind": "gen",
+      "root_kind": "line",
+      "deps": []
+    }
+  ],
+  "expected": [
+    {
+      "probe": "f5:plan",
+      "engine": "accepted+warned",
+      "warden": "accepted+warned",
+      "verdict": "MATCH"
+    }
+  ]
+}

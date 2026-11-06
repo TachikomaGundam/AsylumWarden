@@ -1,0 +1,23 @@
+{
+  "fixture": "f4-cwd-outside-allowed",
+  "probe_prefix": "f4",
+  "_purpose": "Cell cwd sits in lineB while allowed_roots is lineA/work. Both reject: engine INVALID 'cwd ... outside allowed_roots', warden PATH-ESCAPE cwd-containment (src/manifest/manifest.mjs).",
+  "wave": "dualrun-f4",
+  "cells": [
+    {
+      "id": "drift-cwd",
+      "kind": "gen",
+      "root_kind": "work",
+      "cwd_kind": "lineB",
+      "deps": []
+    }
+  ],
+  "expected": [
+    {
+      "probe": "f4:plan",
+      "engine": "reject:CWD",
+      "warden": "reject:PATH-ESCAPE",
+      "verdict": "MATCH"
+    }
+  ]
+}

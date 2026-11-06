@@ -1,0 +1,52 @@
+{
+  "fixture": "f7-retry-loop",
+  "probe_prefix": "f7",
+  "_purpose": "Retry path: claim -> fail -> requeue -> reclaim. All four transition decisions match. Warden reclaim lands on epoch 2 (CONTRACT 6); engine has no epoch/lease concept -> the epoch fact is WARDEN-ONLY, not a DIFF.",
+  "wave": "dualrun-f7",
+  "cells": [
+    {
+      "id": "retry",
+      "kind": "gen",
+      "root_kind": "work",
+      "deps": []
+    }
+  ],
+  "expected": [
+    {
+      "probe": "f7:plan",
+      "engine": "accepted",
+      "warden": "accepted",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f7:claim",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f7:fail",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f7:requeue",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f7:reclaim",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f7:reclaim-epoch",
+      "engine": "no-epoch-concept",
+      "warden": "epoch=2",
+      "verdict": "WARDEN-ONLY"
+    }
+  ]
+}

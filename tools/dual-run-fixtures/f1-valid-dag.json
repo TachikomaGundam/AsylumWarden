@@ -1,0 +1,78 @@
+{
+  "fixture": "f1-valid-dag",
+  "probe_prefix": "f1",
+  "_purpose": "Happy path: 2-cell dependency DAG (alpha -> beta), clean receipts, plus the post-plan policy-drift probe: after plan both engines pin their policy hash (engine: line_roots sha256 in the launchpack; warden: registry_sha256 in config); mutating BOTH files must make done refuse with LINE-ROOTS-DRIFT / CONFIG-DRIFT (same meaning -> MATCH), then restore and close.",
+  "wave": "dualrun-f1",
+  "cells": [
+    {
+      "id": "alpha",
+      "kind": "gen",
+      "root_kind": "work",
+      "deps": []
+    },
+    {
+      "id": "beta",
+      "kind": "gen",
+      "root_kind": "work",
+      "deps": [
+        "alpha"
+      ]
+    }
+  ],
+  "expected": [
+    {
+      "probe": "f1:plan",
+      "engine": "accepted",
+      "warden": "accepted",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:ready",
+      "engine": "[alpha]",
+      "warden": "[alpha]",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:claim-alpha",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:done-alpha",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:ready-after-alpha",
+      "engine": "[beta]",
+      "warden": "[beta]",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:claim-beta",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:drift-done-beta",
+      "engine": "reject:LINE-ROOTS-DRIFT",
+      "warden": "reject:CONFIG-DRIFT",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:done-beta",
+      "engine": "ok",
+      "warden": "ok",
+      "verdict": "MATCH"
+    },
+    {
+      "probe": "f1:verify",
+      "engine": "no-ledger-concept",
+      "warden": "chain-ok,audit-closure=none",
+      "verdict": "WARDEN-ONLY"
+    }
+  ]
+}
