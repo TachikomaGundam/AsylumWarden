@@ -1,0 +1,27 @@
+# Release gate automation (docs/RELEASING.md). Trigger: owner pushes a v* tag.
+# Publishing uses npm Trusted Publishing (OIDC) — configure once on npmjs.com:
+# package asylumwarden -> Trusted Publisher -> GitHub -> this repo + this
+# workflow file. No long-lived npm token ever exists.
+name: publish
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: read
+  id-token: write # OIDC for npm provenance
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      # trusted publishing requires npm >= 11.5.1
+      - run: npm install -g npm@latest
+      - run: node --test "test/**/*.test.mjs"
+      - run: node tools/import-gate.mjs
+      - run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: "" # trusted publishing; no token
