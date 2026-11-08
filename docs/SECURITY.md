@@ -37,7 +37,7 @@ document, adapter, or release note may soften them.
 
 ## 2. Accepted residual risks
 
-From handoff section 14. Each is accepted, not fixed:
+From `docs/ARCHITECTURE.md` section 14. Each is accepted, not fixed:
 
 | Risk | Consequence |
 |---|---|

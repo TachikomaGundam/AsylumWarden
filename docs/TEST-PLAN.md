@@ -1,6 +1,6 @@
 # TEST-PLAN — adversarial list
 
-Derived from handoff §8.5, §9, §10.1, §12 (M1/M2 acceptance). Every line names
+Derived from `docs/CONTRACT.md` and `docs/ARCHITECTURE.md` (M1/M2 acceptance). Every line names
 the probe and the pass criterion. Fail-closed means the tool rejects; a test
 passes when the rejection happens. Relaxing a rejection to make a test pass is
 forbidden (AGENTS.md).
@@ -69,7 +69,7 @@ forbidden (AGENTS.md).
 | maybeAnchor trigger: 50-seq delta | pushes |
 | init with failing non-null anchor | ANCHOR-FAIL, no half-state left |
 
-## T6 Leases (handoff §8.5 required set) — `test/unit/lease.test.mjs`
+## T6 Leases (CONTRACT §6 required set) — `test/unit/lease.test.mjs`
 
 | probe | pass criterion |
 |---|---|

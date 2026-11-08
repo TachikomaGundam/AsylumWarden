@@ -35,7 +35,7 @@ Lease takeover semantics amended (CONTRACT §6) during integration E2E:
   voided `LEASE-HELD` entirely.
 - Replacement: takeover is time-gated only — expiry enables reclaim,
   `max_hold_until` enables `--steal`. The lease `pid`/`host` are forensic
-  fields. Crash occupancy stays bounded by the same limits the handoff
+  fields. Crash occupancy stays bounded by the same limits the contract
   requires ("a malicious claimer delays a cell at most `max_hold`").
 
 ## contract revision (pre-0.1.0) — 2026-11-06 (sanitizer pass, pre-publication)
@@ -49,8 +49,8 @@ majority = home-directory paths in repo content):
   `protect` entry. Machine-specific values (e.g. the PCB repo root on
   this host) live in the machine's shadow config, never in this repo.
 - Documentation paths re-expressed as `~/...` (same value, no username)
-  or neutral placeholders; the architecture-handoff mirror is replaced
-  by a provenance pointer to the machine-local source.
+  or neutral placeholders; the work handoff mirror is removed from the
+  product tree and kept in the operator's work state.
 
 ## practice correction — 2026-11-06 (owner ruling)
 

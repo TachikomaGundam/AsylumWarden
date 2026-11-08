@@ -1,7 +1,7 @@
 {
   "fixture": "f6-receipt-pollution",
   "probe_prefix": "f6",
-  "_purpose": "Receipt lists a real artifact outside allowed_roots (world/outside/poison cell). Engine: DONE-POLLUTED warn+flag, cell STILL marked done (wave.py cmd_done). Warden: done hard-rejects PATH-ESCAPE exit 2, cell state unchanged (CONTRACT 7.4). Warden fail-closed stricter (handoff 9 posture, docs/SECURITY.md) -> EXPECTED-DIVERGENT.",
+  "_purpose": "Receipt lists a real artifact outside allowed_roots (world/outside/poison cell). Engine: DONE-POLLUTED warn+flag, cell STILL marked done (wave.py cmd_done). Warden: done hard-rejects PATH-ESCAPE exit 2, cell state unchanged (CONTRACT 7.4). Warden fail-closed stricter (SECURITY posture, docs/SECURITY.md) -> EXPECTED-DIVERGENT.",
   "wave": "dualrun-f6",
   "cells": [
     {

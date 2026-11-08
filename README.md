@@ -32,7 +32,7 @@ require a database, or replace the host's sandbox.
 ## Design
 
 The approved architecture is in
-[`docs/architecture-handoff.md`](docs/architecture-handoff.md). Wire formats
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Wire formats
 and error codes have a single source: [`docs/CONTRACT.md`](docs/CONTRACT.md)
 with machine-readable schemas in `schemas/`. Security limits are stated
 plainly in [`docs/SECURITY.md`](docs/SECURITY.md). The PCB pilot boundary is

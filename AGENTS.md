@@ -9,10 +9,12 @@ Zero runtime dependencies. `.codegraph/` is a symlink to an external index
 
 ## Read first
 
-- `docs/architecture-handoff.md` (Chinese) — the approved architecture and the
-  authoritative spec. §8 = stable contracts, §10 = Abathur boundary,
-  §10.1 = PCB pilot rules, §11 = planned repo layout, §16 = work order.
+- `docs/ARCHITECTURE.md` — the product architecture.
+- `docs/CONTRACT.md` — the single source for wire formats and error codes.
 - `docs/PILOT-PCB.md`, `docs/RELEASING.md`.
+
+Work handoffs, dockets and session notes are not stored in this repository.
+They live in the operator's work state directory.
 
 ## Hard boundaries (violating these is a cross-line incident)
 
@@ -28,15 +30,18 @@ Zero runtime dependencies. `.codegraph/` is a symlink to an external index
   (`docs/PILOT-PCB.md`).
 - **Core is zero-dependency Node stdlib.** `src/` must not import host SDKs
   (`@opencode-ai`, Codex/Claude packages). Adapters under `adapters/` depend on
-  core, never the reverse. A build gate for this is planned (handoff §7).
+  core, never the reverse. A build gate for this is planned (docs/ARCHITECTURE.md).
+- **Product repository boundary.** Code and product documentation only.
+  Handoffs, dockets, session notes and worklogs are work artifacts: keep them
+  under the operator's work state and never commit them here.
 - **Product promises:** zero runtime deps, zero daemons, zero databases.
   Don't add runtime dependencies. State is plain files under `state_home`.
 
-## Work order (handoff §16, followed by milestones §12)
+## Work order (milestones in docs/ARCHITECTURE.md)
 
 Docs + 4 JSON schemas first (`ARCHITECTURE.md`, `CONTRACT.md`, `SECURITY.md`,
 `schemas/`), then the adversarial test list, then core + CLI, adapter last.
-Target layout: handoff §11.
+Target layout: docs/ARCHITECTURE.md.
 
 ## Contract rules
 
@@ -63,6 +68,9 @@ Target layout: handoff §11.
 - Build gate: `npm run gate:imports` (`node tools/import-gate.mjs`) —
   enforces `src/`+`bin/` import only `node:` stdlib and relative paths, and
   that `package.json` runtime dependency fields stay empty.
+- Work-file gate: `npm run gate:workfiles` (`node tools/workfile-gate.mjs`) —
+  the product repo carries code and product docs only; handoffs, dockets,
+  session notes and worklogs live in the operator's work state, never here.
 - Host-identity invariant: `node tools/path-sanitize.mjs` — no real home
   directory / username in tracked content. Repo code is written idiomatically;
   external scanners' pattern quirks are never accommodated in source shape
@@ -74,7 +82,8 @@ Target layout: handoff §11.
 
 - GitHub: `TachikomaGundam/AsylumWarden` (user account, exact case).
   npm: `asylumwarden` (all lowercase, unscoped). Never a case variant.
-- `0.0.0` is a name-reservation publish; `private: false` is set only for that
-  reservation. The first functional release is `0.1.0`.
+- npm name is reserved by npm's `0.0.0-stage` staged-publishing placeholder.
+  Do not unpublish it. Local `private: true` is deliberate; the first functional
+  release is `0.1.0`.
 - **`npm publish`, tags, and making the repo public are owner-only keys —
   agents never run them.** Release gate steps: `docs/RELEASING.md`.

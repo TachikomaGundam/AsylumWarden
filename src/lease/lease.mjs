@@ -306,7 +306,7 @@ async function claimLocked(ctx, { wave, cell, actor, ttlSeconds = 1800, steal = 
     // a lease is forensic. Short-lived CLI invocations die right after claim,
     // so pid-liveness would make every lease instantly "dead" and void
     // LEASE-HELD entirely. Crash or not, occupancy is bounded by expires_at
-    // (reclaim) and max_hold_until (steal) — the handoff's blocking bound.
+    // (reclaim) and max_hold_until (steal) — the contract's blocking bound.
     if (steal) {
       // CONTRACT §6 pins the steal gate to max_hold_until of the current
       // lease — nothing else. Even an expired-but-within-max-hold lease is

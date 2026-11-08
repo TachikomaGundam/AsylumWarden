@@ -2,9 +2,8 @@
 
 This file is the single authoritative source for AsylumWarden's public
 contract: file formats, field names, validation semantics, error codes, and
-exit codes. The handoff (`docs/architecture-handoff.md` §8) is the design
-record; where wording differs, this file governs the implementation. Schemas
-under `schemas/` are the machine-readable view of the same rules. Contract
+exit codes. This file is the design record and governs the implementation.
+Schemas under `schemas/` are the machine-readable view of the same rules. Contract
 changes follow semver. Adapters may add private fields; core must never read
 adapter-private fields.
 
@@ -297,7 +296,7 @@ Lease file `waves/<wave>/leases/<cell>/owner.json`:
   time-gated, never pid-gated: CLI claimants are short-lived processes that
   exit right after `claim`, so pid-liveness would void every lease. A crashed
   holder therefore blocks its cell only until `expires_at` (reclaim) or
-  `max_hold_until` (steal), which is the handoff's blocking bound.
+  `max_hold_until` (steal), which is the contract's blocking bound.
 - `release`: same actor + epoch; removes the lease, cell returns to
   `pending`, epoch number is never reused.
 - `requeue`: administrative reset of a `failed` cell to `pending`; no lease
@@ -388,8 +387,8 @@ Failure:
   "warnings": [], "degraded": null }
 ```
 
-`violations`, `warnings`, `degraded` are additive extensions of §8.7 of the
-handoff (which they must remain a superset of). Command payloads add their own
+`violations`, `warnings`, `degraded` are additive extensions of this section
+(which they must remain a superset of). Command payloads add their own
 stable fields on top (e.g. `plan` adds `cells[]`, `ready` adds `ready[]`,
 `verify` adds `entries`, `head`, `audit_closure`).
 

@@ -27,8 +27,8 @@ Non-goals:
 
 ## 2. The shape decision: form C
 
-Five shapes were evaluated. The review history is in
-[`docs/architecture-handoff.md`](architecture-handoff.md), sections 1 to 5.
+Five shapes were evaluated. This document records the chosen shape; the
+historical review record is kept outside the product repository.
 
 | Option | Shape | Verdict |
 |---|---|---|
@@ -140,7 +140,7 @@ section 9.
 
 ## 5. Repository layout
 
-Target layout (handoff section 11):
+Target layout:
 
 ```text
 AsylumWarden/
@@ -182,7 +182,7 @@ AsylumWarden/
 
 ## 6. Milestone ladder
 
-M0 (the handoff) is done. Acceptance criteria: handoff section 12.
+M0 (architecture) is done. Acceptance criteria: the M1–M5 table below.
 
 | Milestone | Deliverables | Acceptance |
 |---|---|---|
@@ -235,7 +235,7 @@ shadow receipts are never PCB approval evidence, no adapter in PCB sessions,
 CLI only. It never replaces PCB's own control plane.
 
 The full mechanical rules, baseline snapshots, and pass/fail criteria are in
-[`docs/PILOT-PCB.md`](PILOT-PCB.md) (handoff section 10.1).
+[`docs/PILOT-PCB.md`](PILOT-PCB.md).
 
 ## 9. Where the contracts live
 

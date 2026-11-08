@@ -12,8 +12,9 @@
     "asylumwarden": "bin/asylumwarden.mjs"
   },
   "scripts": {
-    "test": "node --test 'test/**/*.test.mjs'",
-    "gate:imports": "node tools/import-gate.mjs"
+    "test": "node tools/workfile-gate.mjs && node --test 'test/**/*.test.mjs'",
+    "gate:imports": "node tools/import-gate.mjs",
+    "gate:workfiles": "node tools/workfile-gate.mjs"
   },
   "exports": {
     ".": "./src/index.mjs",

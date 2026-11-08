@@ -9,3 +9,13 @@ dist/
 .env.*
 !.env.example
 .codegraph/
+handoffs/
+dockets/
+work/
+workfiles/
+notes/
+sessions/
+*handoff*.md
+*docket*.md
+*session-close*.md
+*worklog*.md
