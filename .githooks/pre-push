@@ -1,0 +1,8 @@
+#!/bin/sh
+# Local push gate (repo self-checks only; external gate stays at border).
+# Enable once per clone: git config core.hooksPath .githooks
+set -e
+node --test "test/**/*.test.mjs" >/dev/null
+node tools/import-gate.mjs >/dev/null
+node tools/path-sanitize.mjs >/dev/null
+echo "push gates OK (tests / import / host-identity)"
