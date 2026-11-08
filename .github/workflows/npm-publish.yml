@@ -22,6 +22,8 @@ jobs:
       - run: npm install -g npm@latest
       - run: node --test "test/**/*.test.mjs"
       - run: node tools/import-gate.mjs
+      # No NODE_AUTH_TOKEN: even an empty one makes setup-node write a bogus
+      # .npmrc that shadows OIDC Trusted Publishing (run 42480678527 ENEEDAUTH).
+      # One-time npmjs.com setup: Trusted Publisher -> GitHub owner/repo/this
+      # workflow, tag pattern v*.
       - run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: "" # trusted publishing; no token
